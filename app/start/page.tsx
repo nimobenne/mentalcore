@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@vercel/analytics/react";
 import { subscribe } from "../actions";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -81,6 +82,7 @@ export default function Home() {
       setAnswers(next);
       setPattern(p);
       setStep("result");
+      track("quiz_completed", { pattern: p });
     }
   }
 
@@ -90,8 +92,10 @@ export default function Home() {
     try {
       await subscribe(email, pattern ?? undefined);
       setStep("done");
+      track("email_submitted", { pattern: pattern ?? "unknown" });
     } catch {
       setStatus("error");
+      track("email_submit_failed", { pattern: pattern ?? "unknown" });
     }
   }
 
@@ -123,7 +127,10 @@ export default function Home() {
             </p>
 
             <button
-              onClick={() => setStep("quiz")}
+              onClick={() => {
+                setStep("quiz");
+                track("quiz_started");
+              }}
               style={mono}
               className="mt-6 bg-[#C4813A] text-[#0d0d0f] font-extrabold text-[12px] tracking-[0.15em] uppercase px-8 py-4 hover:bg-[#d4904a] transition-colors"
             >

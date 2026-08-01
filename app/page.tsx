@@ -506,6 +506,9 @@ const BEHAVIOR_JS = `
     if (!base) return;
     a.href = base + (base.indexOf('?') > -1 ? '&' : '?') + 'src=' + encodeURIComponent(src);
     a.rel = 'noopener';
+    a.addEventListener('click', function(){
+      if (window.va) window.va('event', { name: 'buy_click', data: { src: src } });
+    });
   });
 
   root.querySelectorAll('a[href^="/start"]').forEach(function(a){
