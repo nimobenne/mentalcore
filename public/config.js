@@ -2,8 +2,7 @@
    This is the only file to edit to change where the buy button points or what the price says. */
 window.MENTALCORE = {
 
-  /* Gumroad checkout for The Reactivation.
-     TODO: replace with the real product URL once the Gumroad listing is live. */
+  /* Gumroad checkout for The Reactivation. Confirmed live 2026-08-01. */
   checkoutUrl: 'https://mentalcore.gumroad.com/l/reactivation',
 
   /* Shown everywhere the price appears on the sales page. */
