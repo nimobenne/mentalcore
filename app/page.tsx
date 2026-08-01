@@ -1,347 +1,561 @@
-"use client";
+import type { Metadata } from "next";
+import Script from "next/script";
 
-import { useState } from "react";
-import { subscribe } from "./actions";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type Step = "intro" | "quiz" | "result" | "email" | "done";
-type Answer = "always" | "sometimes" | "rarely";
-type PatternKey = "shutdown" | "slowfade" | "highperformer";
-
-// ─── Content ─────────────────────────────────────────────────────────────────
-
-const QUESTIONS = [
-  "When someone asks how you're doing, the answer you give is different from the one that's true.",
-  "There are things you want, or used to want, that you've stopped letting yourself want. Not because you decided they weren't worth it. Because wanting them started to feel like setting yourself up.",
-  "You function well. You show up, you deliver, you keep things together. But the sense of it mattering, of being genuinely present in your own life, is faint or missing.",
-  "Growing up, your emotional needs were either ignored, minimized, or quietly used against you. You learned to need less. Or to not show it.",
-  "There's a version of you that existed before — younger, less guarded, more certain about what he wanted. You're not sure what happened to him, but you'd recognize him if you saw him.",
-];
-
-const PATTERNS: Record<PatternKey, { label: string; headline: string; body: string; cta: string }> = {
-  shutdown: {
-    label: "The Shutdown",
-    headline: "You've gone quiet after something changed.",
-    body: "Something happened. A loss, a failure, a version of yourself that didn't land the way it was supposed to. You kept going because stopping wasn't an option. But the signal got cut somewhere in the aftermath, and it hasn't fully come back. The performing version of you has been covering for the real one for a while now.",
-    cta: "The 5-day series starts exactly here. What happened, what it cost, and where to begin moving again. Day 1 lands in minutes.",
+export const metadata: Metadata = {
+  title: "The Reactivation — MentalCore",
+  description:
+    "For the man who functions fine and feels almost nothing. Seven days, fifteen minutes a day, to get back in contact with yourself.",
+  openGraph: {
+    type: "website",
+    siteName: "MentalCore",
+    title: "You're not depressed. You've just gone quiet.",
+    description:
+      "Seven days. Fifteen minutes a day. One email each morning. Built for the man who functions fine and feels almost nothing.",
+    url: "https://mentalcore.vercel.app/",
   },
-  slowfade: {
-    label: "The Slow Fade",
-    headline: "You've been quiet for a long time.",
-    body: "There was no single event. It happened gradually, maybe over years, maybe over most of your life. You learned early that needing things was either too much or not safe. So you adjusted. You got good at not needing. The quiet has been there so long it feels like personality. It isn't.",
-    cta: "The 5-day series was built for this kind of quiet. The kind that started before you had words for it. Day 1 is waiting.",
-  },
-  highperformer: {
-    label: "The High Performer's Emptiness",
-    headline: "You've gone quiet behind what's working.",
-    body: "By most measures, things are working. Career, competence, the way people see you. But the achievement doesn't land the way it was supposed to. The completion feels like nothing. The man who built all of this isn't sure he was supposed to feel this empty. The quiet lives behind the noise.",
-    cta: "The 5-day series starts with the gap between what you've built and what it was supposed to feel like. Day 1 lands now.",
+  twitter: {
+    card: "summary_large_image",
+    title: "You're not depressed. You've just gone quiet.",
+    description: "Seven days. Fifteen minutes a day. One email each morning.",
   },
 };
 
-// ─── Scoring ─────────────────────────────────────────────────────────────────
+const PAGE_CSS = `
+:root{
+  --void:#0d0d0f;
+  --surface:#111113;
+  --line:#1e1e22;
+  --line-lit:#2a2a30;
+  --ember:#C4813A;
+  --ember-hi:#d4904a;
+  --bone:#f0ede8;
+  --ash:#b8b4ae;
+  --dim:#4a4a55;
 
-function score(a: Answer): number {
-  return a === "always" ? 2 : a === "sometimes" ? 1 : 0;
+  --measure:640px;
+  --gutter:24px;
+  --section:clamp(72px,11vw,124px);
 }
 
-function getPattern(answers: Answer[]): PatternKey {
-  const [a1, a2, a3, a4, a5] = answers;
-  const shutdown = score(a1) + score(a3);
-  const slowfade = score(a4) + score(a5);
-  const highperformer = score(a2) + score(a3);
-  if (slowfade >= shutdown && slowfade >= highperformer) return "slowfade";
-  if (highperformer >= shutdown) return "highperformer";
-  return "shutdown";
+.mc-sales *,.mc-sales *::before,.mc-sales *::after{box-sizing:border-box;margin:0;padding:0}
+.mc-sales{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){.mc-sales{scroll-behavior:auto}}
+
+.mc-sales{
+  background:var(--void);
+  color:var(--ash);
+  font-family:var(--font-inter),system-ui,-apple-system,sans-serif;
+  font-weight:300;
+  font-size:17px;
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
+.mc-sales .wrap{max-width:var(--measure);margin:0 auto;padding:0 var(--gutter)}
 
-const mono = { fontFamily: "var(--font-montserrat), sans-serif" };
-const body = { fontFamily: "var(--font-inter), system-ui, sans-serif" };
+.mc-sales h1,.mc-sales h2,.mc-sales h3,.mc-sales .eyebrow,.mc-sales .terms,.mc-sales .btn,.mc-sales .wordmark,.mc-sales .day-n,.mc-sales .trace-phase,.mc-sales .anchor-price,.mc-sales .deal-label,.mc-sales .bar-label{
+  font-family:var(--font-montserrat),system-ui,sans-serif;
+}
 
-// ─── Component ───────────────────────────────────────────────────────────────
+.mc-sales h1{
+  font-weight:900;
+  font-size:clamp(34px,7.2vw,60px);
+  line-height:1.04;
+  letter-spacing:-0.02em;
+  color:var(--bone);
+  text-transform:uppercase;
+}
+.mc-sales h1 .quiet{color:var(--ember)}
 
-export default function Home() {
-  const [step, setStep] = useState<Step>("intro");
-  const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [pattern, setPattern] = useState<PatternKey | null>(null);
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+.mc-sales h2{
+  font-weight:800;
+  font-size:clamp(23px,3.6vw,31px);
+  line-height:1.18;
+  letter-spacing:-0.01em;
+  color:var(--bone);
+  text-transform:uppercase;
+  margin-bottom:28px;
+}
 
-  function handleAnswer(answer: Answer) {
-    const next = [...answers, answer];
-    if (next.length < QUESTIONS.length) {
-      setAnswers(next);
-      setQIndex(qIndex + 1);
-    } else {
-      const p = getPattern(next as [Answer, Answer, Answer, Answer, Answer]);
-      setAnswers(next);
-      setPattern(p);
-      setStep("result");
-    }
-  }
+.mc-sales h3{
+  font-weight:700;
+  font-size:14px;
+  letter-spacing:.02em;
+  color:var(--bone);
+  text-transform:none;
+  margin-bottom:8px;
+}
 
-  async function handleSubscribe(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("loading");
-    try {
-      await subscribe(email, pattern ?? undefined);
-      setStep("done");
-    } catch {
-      setStatus("error");
-    }
-  }
+.mc-sales .eyebrow{
+  font-weight:700;
+  font-size:10px;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+  color:var(--ember);
+}
+.mc-sales .eyebrow.muted{color:var(--dim)}
 
-  const p = pattern ? PATTERNS[pattern] : null;
+.mc-sales .rule{width:44px;height:2px;background:var(--ember);margin:28px 0}
 
-  return (
-    <main style={body} className="min-h-screen flex items-center justify-center px-5 py-12">
-      <div className="w-full max-w-[560px]">
+.mc-sales p{margin-bottom:20px}
+.mc-sales p:last-child{margin-bottom:0}
+.mc-sales p strong{color:var(--bone);font-weight:500}
 
-        {/* ── INTRO ── */}
-        {step === "intro" && (
-          <>
-            <p style={mono} className="font-bold text-[10px] tracking-[0.3em] uppercase text-[#C4813A] mb-6">
-              Free. 2 minutes. No email required to start.
-            </p>
+.mc-sales .lede{font-size:19px;color:var(--bone);font-weight:300}
+.mc-sales .copy p{max-width:60ch}
 
-            <h1
-              style={{ ...mono, fontSize: "clamp(28px, 5vw, 42px)" }}
-              className="font-extrabold leading-[1.1] uppercase text-[#f0ede8] mb-7"
-            >
-              Something went quiet.{" "}
-              <span className="text-[#C4813A]">Find out which kind.</span>
-            </h1>
+.mc-sales section{padding:var(--section) 0}
+.mc-sales section + section{border-top:1px solid var(--line)}
 
-            <div className="w-10 h-0.5 bg-[#C4813A] mb-7" />
+.mc-sales .hero{padding-top:clamp(60px,13vh,110px);padding-bottom:var(--section)}
+.mc-sales .hero .eyebrow{display:block;margin-bottom:26px}
+.mc-sales .hero h1{margin-bottom:30px}
 
-            <p className="text-base font-light leading-[1.75] text-[#b8b4ae] mb-4">
-              Five questions. No right answers. At the end you'll know exactly which pattern you're in, and what to do with it.
-            </p>
+.mc-sales .terms{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  font-weight:700;
+  font-size:11px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ash);
+  margin-bottom:38px;
+  row-gap:10px;
+}
+.mc-sales .terms span{padding-right:16px;margin-right:16px;border-right:1px solid var(--line-lit)}
+.mc-sales .terms span:last-child{border-right:0;padding-right:0;margin-right:0;color:var(--ember)}
 
-            <button
-              onClick={() => setStep("quiz")}
-              style={mono}
-              className="mt-6 bg-[#C4813A] text-[#0d0d0f] font-extrabold text-[12px] tracking-[0.15em] uppercase px-8 py-4 hover:bg-[#d4904a] transition-colors"
-            >
-              Start the Audit
-            </button>
+.mc-sales .btn{
+  display:inline-block;
+  background:var(--ember);
+  color:var(--void);
+  font-weight:800;
+  font-size:13px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  text-decoration:none;
+  padding:19px 34px;
+  border:0;
+  cursor:pointer;
+  transition:background .18s ease,transform .18s ease;
+}
+.mc-sales .btn:hover{background:var(--ember-hi)}
+.mc-sales .btn:active{transform:translateY(1px)}
+.mc-sales .btn:focus-visible{outline:2px solid var(--bone);outline-offset:3px}
 
-            <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>
-              <p style={mono} className="font-extrabold text-[11px] tracking-[0.3em] uppercase text-[#2a2a30]">
-                MentalCore
-              </p>
-            </div>
-          </>
-        )}
+.mc-sales .cta-sub{
+  font-size:14px;
+  color:var(--dim);
+  line-height:1.65;
+  margin-top:16px;
+  max-width:46ch;
+}
 
-        {/* ── QUIZ ── */}
-        {step === "quiz" && (
-          <>
-            {/* Progress */}
-            <div className="mb-10">
-              <p style={mono} className="font-bold text-[10px] tracking-[0.3em] uppercase text-[#4a4a55] mb-3">
-                {qIndex + 1} of {QUESTIONS.length}
-              </p>
-              <div className="w-full h-0.5 bg-[#1e1e22]">
-                <div
-                  className="h-0.5 bg-[#C4813A] transition-all duration-300"
-                  style={{ width: `${((qIndex + 1) / QUESTIONS.length) * 100}%` }}
-                />
-              </div>
-            </div>
+.mc-sales .pull{margin:46px 0 0;padding-top:26px;border-top:1px solid var(--line-lit);max-width:34ch}
+.mc-sales .pull p{
+  font-size:clamp(20px,3.2vw,25px);
+  line-height:1.35;
+  color:var(--bone);
+  font-weight:300;
+  letter-spacing:-.01em;
+}
 
-            {/* Question */}
-            <p
-              style={{ ...body, fontSize: "clamp(17px, 3vw, 22px)" }}
-              className="font-light leading-[1.65] text-[#f0ede8] mb-10"
-            >
-              {QUESTIONS[qIndex]}
-            </p>
+.mc-sales .trace{list-style:none;margin:44px 0 0;padding:0}
+.mc-sales .trace-phase{
+  font-weight:700;
+  font-size:10px;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--dim);
+  padding-top:34px;
+  margin-bottom:18px;
+  border-top:1px solid var(--line);
+}
+.mc-sales .trace-phase:first-child{padding-top:0;border-top:0}
 
-            {/* Answers */}
-            <div className="flex flex-col gap-3">
-              {(["always", "sometimes", "rarely"] as Answer[]).map((a) => (
-                <button
-                  key={a}
-                  onClick={() => handleAnswer(a)}
-                  style={{
-                    fontFamily: "var(--font-montserrat), sans-serif",
-                    border: "1px solid #2a2a30",
-                    transition: "border-color 0.15s, color 0.15s",
-                  }}
-                  className="w-full text-left px-6 py-4 font-bold text-[11px] tracking-[0.2em] uppercase text-[#b8b4ae] hover:text-[#f0ede8]"
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#C4813A")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#2a2a30")}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = "#C4813A")}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2a30")}
-                >
-                  {a === "always" ? "Almost always" : a === "sometimes" ? "Sometimes" : "Rarely"}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
+.mc-sales .day{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:0 18px;
+  align-items:baseline;
+  padding:13px 0;
+}
+.mc-sales .day-n{
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:.1em;
+  color:var(--dim);
+  transition:color .5s ease;
+}
+.mc-sales .day-t{color:var(--ash);font-size:16px;line-height:1.4;transition:color .5s ease}
+.mc-sales .day-bar{
+  grid-column:2;
+  height:2px;
+  background:var(--line-lit);
+  margin-top:12px;
+  position:relative;
+  overflow:hidden;
+}
+.mc-sales .day-bar::after{
+  content:'';
+  position:absolute;
+  inset:0 auto 0 0;
+  width:var(--w);
+  background:var(--ember);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .9s cubic-bezier(.2,.7,.2,1);
+}
+.mc-sales .day.in .day-bar::after{transform:scaleX(1)}
+.mc-sales .day.in .day-n{color:var(--ember)}
+.mc-sales .day.in .day-t{color:var(--bone)}
 
-        {/* ── RESULT ── */}
-        {step === "result" && p && (
-          <>
-            <p style={mono} className="font-bold text-[10px] tracking-[0.35em] uppercase text-[#C4813A] mb-5">
-              Your pattern
-            </p>
+@media (prefers-reduced-motion:reduce){
+  .mc-sales .day-bar::after{transition:none;transform:scaleX(1)}
+  .mc-sales .day-n{color:var(--ember)}
+  .mc-sales .day-t{color:var(--bone)}
+}
 
-            <p
-              style={{ ...mono, fontSize: "clamp(10px, 2vw, 12px)" }}
-              className="font-bold tracking-[0.3em] uppercase text-[#4a4a55] mb-3"
-            >
-              {p.label}
-            </p>
+.mc-sales .panel{background:var(--surface);border:1px solid var(--line);padding:32px 30px}
+.mc-sales .panel p{color:var(--ash);max-width:none}
 
-            <h2
-              style={{ ...mono, fontSize: "clamp(22px, 4vw, 32px)" }}
-              className="font-extrabold leading-[1.15] uppercase text-[#f0ede8] mb-6"
-            >
-              {p.headline}
-            </h2>
+.mc-sales .deal{border:1px solid var(--line-lit);padding:38px 32px 34px;position:relative;margin-top:12px}
+.mc-sales .deal-label{
+  position:absolute;
+  top:0;left:28px;
+  transform:translateY(-50%);
+  background:var(--void);
+  padding:0 12px;
+  font-weight:800;
+  font-size:10px;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--ember);
+}
+.mc-sales .deal p{color:var(--bone);max-width:none}
+.mc-sales .deal p + p{margin-top:18px}
 
-            <div className="w-10 h-0.5 bg-[#C4813A] mb-6" />
+.mc-sales .faq{margin-top:40px;border-top:1px solid var(--line)}
+.mc-sales .faq-item{border-bottom:1px solid var(--line);padding:26px 0}
+.mc-sales .faq-item p{color:var(--ash);font-size:16px;max-width:62ch;margin:0}
 
-            <p className="text-[15px] font-light leading-[1.8] text-[#b8b4ae] mb-10">
-              {p.body}
-            </p>
+.mc-sales .anchor-price{
+  font-weight:800;
+  font-size:clamp(46px,10vw,78px);
+  line-height:1;
+  letter-spacing:-.03em;
+  color:var(--ember);
+  display:block;
+  margin:6px 0 20px;
+}
 
-            <button
-              onClick={() => setStep("email")}
-              style={mono}
-              className="w-full sm:w-auto bg-[#C4813A] text-[#0d0d0f] font-extrabold text-[12px] tracking-[0.15em] uppercase px-8 py-4 hover:bg-[#d4904a] transition-colors"
-            >
-              See What Comes Next
-            </button>
+.mc-sales .notready{background:var(--surface)}
+.mc-sales .notready h2{margin-bottom:20px}
+.mc-sales .link-cta{
+  display:inline-block;
+  font-family:var(--font-montserrat),system-ui,sans-serif;
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ember);
+  text-decoration:none;
+  border-bottom:2px solid var(--ember);
+  padding-bottom:5px;
+  margin-top:8px;
+  transition:color .18s,border-color .18s;
+}
+.mc-sales .link-cta:hover{color:var(--ember-hi);border-color:var(--ember-hi)}
+.mc-sales .link-cta:focus-visible{outline:2px solid var(--bone);outline-offset:4px}
 
-            <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>
-              <p style={mono} className="font-extrabold text-[11px] tracking-[0.3em] uppercase text-[#2a2a30]">
-                MentalCore
-              </p>
-            </div>
-          </>
-        )}
+.mc-sales footer{padding:44px 0 60px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
+.mc-sales .footer-row{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;justify-content:space-between}
+.mc-sales .wordmark{font-weight:800;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--line-lit)}
+.mc-sales footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
+.mc-sales footer a:hover{color:var(--ash)}
+.mc-sales footer a:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
 
-        {/* ── EMAIL ── */}
-        {step === "email" && p && (
-          <>
-            <p style={mono} className="font-bold text-[10px] tracking-[0.35em] uppercase text-[#C4813A] mb-5">
-              {p.label}
-            </p>
+.mc-sales .bar{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  background:rgba(13,13,15,.94);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--line-lit);
+  padding:12px var(--gutter);
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  z-index:20;
+  transform:translateY(110%);
+  transition:transform .3s ease;
+}
+.mc-sales .bar.show{transform:translateY(0)}
+.mc-sales .bar-label{
+  font-weight:700;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ash);
+  line-height:1.35;
+}
+.mc-sales .bar .btn{padding:14px 20px;font-size:12px;white-space:nowrap}
 
-            <h2
-              style={{ ...mono, fontSize: "clamp(22px, 4vw, 32px)" }}
-              className="font-extrabold leading-[1.15] uppercase text-[#f0ede8] mb-6"
-            >
-              The 5-Day Series
-            </h2>
+@media (max-width:700px){
+  .mc-sales{font-size:16px;line-height:1.75}
+  .mc-sales .lede{font-size:17px}
+  .mc-sales .btn{width:100%;text-align:center;padding:18px 24px}
+  .mc-sales .bar{display:flex}
+  .mc-sales .bar .btn{width:auto}
+  .mc-sales footer{padding-bottom:96px}
+  .mc-sales .day{grid-template-columns:30px 1fr;gap:0 14px}
+  .mc-sales .deal{padding:34px 24px 30px}
+  .mc-sales .deal-label{left:20px}
+  .mc-sales .panel{padding:26px 22px}
+}
+`;
 
-            <div className="w-10 h-0.5 bg-[#C4813A] mb-6" />
+const BODY_HTML = `
+<main>
 
-            <p className="text-[15px] font-light leading-[1.8] text-[#b8b4ae] mb-8">
-              {p.cta}
-            </p>
-
-            <div
-              className="bg-[#111113] px-7 py-6 mb-8"
-              style={{ border: "1px solid #1e1e22", borderLeft: "3px solid #C4813A" }}
-            >
-              <p style={mono} className="font-bold text-[10px] tracking-[0.25em] uppercase text-[#C4813A] mb-4">
-                Five days. One honest look each day.
-              </p>
-              <ul className="flex flex-col gap-3">
-                {[
-                  "Day 1 — The specific kind of not-okay nobody talks about",
-                  "Day 2 — The signal most men miss (it's not in your head)",
-                  "Day 3 — The gap between the man you perform and the man you are",
-                  "Day 4 — Whose story you've actually been living",
-                  "Day 5 — What happens after you've seen it",
-                ].map((d) => (
-                  <li key={d} className="text-sm text-[#b8b4ae] leading-[1.5] pl-4 relative">
-                    <span className="absolute left-0 top-[8px] w-1 h-1 rounded-full bg-[#C4813A]" aria-hidden />
-                    {d}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <form onSubmit={handleSubscribe}>
-              <label htmlFor="email" style={mono} className="block font-bold text-[10px] tracking-[0.25em] uppercase text-[#8a8899] mb-2.5">
-                Your email
-              </label>
-              <div className="flex gap-2.5 flex-col sm:flex-row">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="you@email.com"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={status === "loading"}
-                  className="flex-1 bg-[#111113] text-[#f0ede8] font-light text-[15px] px-[18px] py-3.5 outline-none placeholder:text-[#4a4a55] disabled:opacity-50"
-                  style={{ border: "1px solid #2a2a30", fontFamily: "var(--font-inter), system-ui, sans-serif" }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = "#C4813A")}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2a30")}
-                />
-                <button
-                  type="submit"
-                  disabled={status === "loading"}
-                  style={mono}
-                  className="bg-[#C4813A] text-[#0d0d0f] font-extrabold text-[12px] tracking-[0.15em] uppercase px-[22px] py-3.5 hover:bg-[#d4904a] transition-colors whitespace-nowrap disabled:opacity-50 sm:w-auto w-full"
-                >
-                  {status === "loading" ? "Sending..." : "Send Day 1"}
-                </button>
-              </div>
-              {status === "error" && (
-                <p className="text-xs text-red-400 mt-3">Something went wrong. Try again.</p>
-              )}
-              <p className="text-xs text-[#4a4a55] mt-3 leading-[1.5]">
-                Free. Nobody can see what lands in your inbox.
-              </p>
-            </form>
-
-            <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>
-              <p style={mono} className="font-extrabold text-[11px] tracking-[0.3em] uppercase text-[#2a2a30]">
-                MentalCore
-              </p>
-            </div>
-          </>
-        )}
-
-        {/* ── DONE ── */}
-        {step === "done" && (
-          <>
-            <p style={mono} className="font-bold text-[10px] tracking-[0.35em] uppercase text-[#C4813A] mb-6">
-              {p?.label}
-            </p>
-
-            <div className="py-6 pl-7" style={{ borderLeft: "3px solid #C4813A" }}>
-              <p className="text-base text-[#f0ede8] font-light leading-[1.75]">
-                Good. Day 1 is on its way.
-              </p>
-              <p className="text-sm text-[#b8b4ae] mt-2">
-                Check your inbox in a few minutes.
-              </p>
-            </div>
-
-            <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>
-              <p style={mono} className="font-extrabold text-[11px] tracking-[0.3em] uppercase text-[#2a2a30]">
-                MentalCore
-              </p>
-            </div>
-          </>
-        )}
-
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">MentalCore</span>
+      <h1>You're not depressed.<br>You've just gone <span class="quiet">quiet</span>.</h1>
+      <p class="terms">
+        <span>7 days</span>
+        <span>15 min a day</span>
+        <span data-price>$37</span>
+      </p>
+      <div class="cta-block">
+        <a class="btn" href="#" data-buy>Get The Reactivation</a>
+        <p class="cta-sub">One time. Instant access. The first email lands tomorrow morning, and there's something you can do tonight.</p>
       </div>
-    </main>
+    </div>
+  </header>
+
+  <!-- RECOGNITION -->
+  <section class="copy">
+    <div class="wrap">
+      <p class="lede">There's a kind of not-okay nobody warns you about.</p>
+      <p>It isn't falling apart. Falling apart would almost be easier, because at least everyone would see it. This is quieter than that. You still get up. You still do the job, answer the texts, show up where you said you'd be. You'd score fine on any questionnaire a doctor handed you.</p>
+      <p>But you know, in the way you can only know something at one in the morning when it's just you and the ceiling, that you're not really in your own life anymore. You're next to it. Doing the right things. Saying the right things. Watching it all happen to a guy who looks like you.</p>
+      <p>That's not weakness. It isn't a diagnosis either.</p>
+      <p>That's what happens when a man performs okay for long enough that he forgets what not performing even felt like. The performance gets so good he disappears inside it. And one day he realizes he can't remember the last time something actually reached him.</p>
+      <div class="pull">
+        <p>I know that man because I was him. I built something for him.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT IT IS -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">What it is</span>
+      <div class="rule"></div>
+      <h2>Seven days.<br>One email each morning.</h2>
+      <div class="copy">
+        <p>Not therapy. Not journaling prompts. Not a course with modules and a certificate at the end that you'll never look at.</p>
+        <p>It's a sequence built to get you back in contact with yourself, and it starts with your body, because that is always where the signal comes back first.</p>
+      </div>
+
+      <ol class="trace">
+        <li class="trace-phase">Days 1 and 2 — the body</li>
+        <li class="day" style="--w:22%"><span class="day-n">01</span><span class="day-t">The Body Speaks First</span><span class="day-bar"></span></li>
+        <li class="day" style="--w:33%"><span class="day-n">02</span><span class="day-t">Presence Over Production</span><span class="day-bar"></span></li>
+
+        <li class="trace-phase">Days 3 to 5 — who you actually are</li>
+        <li class="day" style="--w:47%"><span class="day-n">03</span><span class="day-t">Who You Are When Nobody's Watching</span><span class="day-bar"></span></li>
+        <li class="day" style="--w:60%"><span class="day-n">04</span><span class="day-t">The Story You Tell About Yourself</span><span class="day-bar"></span></li>
+        <li class="day" style="--w:72%"><span class="day-n">05</span><span class="day-t">What You've Been Carrying</span><span class="day-bar"></span></li>
+
+        <li class="trace-phase">Days 6 and 7 — direction</li>
+        <li class="day" style="--w:86%"><span class="day-n">06</span><span class="day-t">What You Actually Want</span><span class="day-bar"></span></li>
+        <li class="day" style="--w:100%"><span class="day-n">07</span><span class="day-t">One Honest Commitment</span><span class="day-bar"></span></li>
+      </ol>
+
+      <div class="copy" style="margin-top:46px">
+        <p>Days one and two are physical. Something that makes you feel something. No explaining it, no figuring it out, no talking about your childhood. Just feeling, on purpose, maybe for the first time in a while.</p>
+        <p>Days three through five are about who you actually are. Not the version you run for other people. The one underneath that, the one you've half lost track of.</p>
+        <p>Days six and seven are direction. Not goals. Not a five-year plan. One honest commitment small enough to actually keep.</p>
+        <p>Every day comes with a page to write on, and by day seven you're reading back a week of your own handwriting instead of trying to remember what you thought on Tuesday.</p>
+        <p><strong>I'm not promising transformation. I'm not selling you a new man. I'm selling you seven days of giving a damn about the one already here.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO BUILT THIS -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">Who made this</span>
+      <div class="rule"></div>
+      <h2>My name is Sam.</h2>
+      <div class="copy">
+        <p>I run MentalCore. If you got here from a clip, that's mine. I started posting because I kept finding moments where men said the thing out loud that I had spent years not saying, and it turned out a lot of us were sitting in the same silence.</p>
+        <p>I'm not a therapist and I'm not going to pretend to be one. I built The Reactivation out of what actually moved the needle for me when I was functioning fine and feeling almost nothing, and I wrote it as the thing I wanted somebody to hand me back then.</p>
+        <p>That's the whole credential. If that's not enough for you, don't buy it. Read the free guide instead and see whether I'm describing your life accurately before you spend anything.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OBJECTION -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">You're skeptical</span>
+      <div class="rule"></div>
+      <h2>Good. You should be.</h2>
+      <div class="panel">
+        <p>There's a whole industry pointed at men like us, and it splits into two flavors. The soft stuff, all feelings wheels and breathe-into-it, that makes your skin crawl. And the hard stuff, cold showers and grind and dominate your morning, that's just the same emptiness wearing a weighted vest. You learned to scroll past both. So did I.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE DEAL -->
+  <section>
+    <div class="wrap">
+      <div class="deal">
+        <span class="deal-label">The deal</span>
+        <p>Start it. If at any point it isn't doing anything for you, email me and I'll send your money back. You don't have to finish all seven days first, and you don't have to explain why.</p>
+        <p>I'm not worried about that clause. I wrote it on purpose.</p>
+      </div>
+
+      <div class="faq">
+        <div class="faq-item">
+          <h3>Is this therapy?</h3>
+          <p>No, and it doesn't replace it. It's a structure for seven days. If something surfaces during the week that's heavier than a week can hold, that's worth taking to a real therapist, and it doesn't cancel out what the seven days did.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Do I have to talk to anybody?</h3>
+          <p>No. There's no group, no call, no forum, no accountability partner. It's you, an email each morning, and fifteen minutes. Nobody sees what you write.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What if I miss a day?</h3>
+          <p>You pick it up the next morning. Nothing resets and nothing is lost. The emails don't chase you and the days don't expire.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How long does it actually take?</h3>
+          <p>Fifteen minutes, most days less. Each morning gives you one idea, one question to sit on, and one thing to actually do. It's built for a man with a full schedule and no spare energy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow muted">One therapy session runs $150 to $250</span>
+      <span class="anchor-price" data-price>$37</span>
+      <div class="copy">
+        <p>I'm not saying this is therapy. I'm saying it's <span data-price>$37</span>, it lands tomorrow morning, there's no waitlist, and the only thing it asks of you is fifteen minutes and something honest.</p>
+      </div>
+      <div class="cta-block" style="margin-top:34px">
+        <a class="btn" href="#" data-buy>Get The Reactivation</a>
+        <p class="cta-sub">One time. Instant access. You can start tonight.<br>Start it, feel nothing, get your money back. That's the deal, and I mean it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOT READY — capture path -->
+  <section class="notready">
+    <div class="wrap">
+      <span class="eyebrow muted">Not sure yet</span>
+      <div class="rule"></div>
+      <h2>Then don't buy anything.</h2>
+      <div class="copy">
+        <p>There's a free guide called <em>Why You've Gone Quiet</em>. It walks you through the three patterns most men are in without knowing it, and five questions that tell you which one is yours. Ten minutes, straight to your inbox, no pitch until you decide you want one.</p>
+        <p>Read that first. If it describes your life accurately, you'll know what to do next.</p>
+      </div>
+      <a class="link-cta" href="/start">Get the free guide</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-row">
+      <span class="wordmark">MentalCore</span>
+      <span><a href="/start">Free guide</a> · <a href="mailto:hello@mentalcore.co">Questions? Email me</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="bar" aria-hidden="true">
+  <span class="bar-label">The Reactivation<br><span data-price>$37</span> · 7 days</span>
+  <a class="btn" href="#" data-buy tabindex="-1">Get it</a>
+</div>
+`;
+
+const BEHAVIOR_JS = `
+(function(){
+  'use strict';
+  var root = document.querySelector('.mc-sales');
+  if (!root) return;
+
+  var cfg = window.MENTALCORE || { checkoutUrl: '', price: '$37' };
+
+  var base = cfg.checkoutUrl || '';
+  var qs = new URLSearchParams(location.search);
+  var src = qs.get('src') || qs.get('utm_source') || 'direct';
+
+  root.querySelectorAll('[data-buy]').forEach(function(a){
+    if (!base) return;
+    a.href = base + (base.indexOf('?') > -1 ? '&' : '?') + 'src=' + encodeURIComponent(src);
+    a.rel = 'noopener';
+  });
+
+  root.querySelectorAll('a[href^="/start"]').forEach(function(a){
+    a.href = '/start?src=' + encodeURIComponent(src);
+  });
+
+  if (cfg.price) {
+    root.querySelectorAll('[data-price]').forEach(function(el){ el.textContent = cfg.price; });
+  }
+
+  var days = root.querySelectorAll('.day');
+  if (!('IntersectionObserver' in window)) {
+    days.forEach(function(d){ d.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var i = +e.target.dataset.i;
+        setTimeout(function(){ e.target.classList.add('in'); }, i * 90);
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.6, rootMargin: '0px 0px -8% 0px' });
+    days.forEach(function(d,i){ d.dataset.i = i; io.observe(d); });
+  }
+
+  var bar = root.querySelector('.bar');
+  var hero = root.querySelector('.hero .cta-block');
+  if (bar && hero && 'IntersectionObserver' in window) {
+    var barLink = bar.querySelector('.btn');
+    new IntersectionObserver(function(entries){
+      var visible = entries[0].isIntersecting;
+      bar.classList.toggle('show', !visible);
+      bar.setAttribute('aria-hidden', visible ? 'true' : 'false');
+      barLink.tabIndex = visible ? -1 : 0;
+    }, { threshold: 0 }).observe(hero);
+  }
+})();
+`;
+
+export default function SalesPage() {
+  return (
+    <div className="mc-sales">
+      <style dangerouslySetInnerHTML={{ __html: PAGE_CSS }} />
+      <div dangerouslySetInnerHTML={{ __html: BODY_HTML }} />
+      <Script id="mc-config" src="/config.js" strategy="beforeInteractive" />
+      <Script
+        id="mc-sales-behavior"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: BEHAVIOR_JS }}
+      />
+    </div>
   );
 }
