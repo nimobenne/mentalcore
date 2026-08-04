@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+:root {
+  --void: #0d0d0f;
+  --bone: #f0ede8;
+}

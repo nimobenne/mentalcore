@@ -31,7 +31,10 @@ export default function RootLayout({
       lang="en"
       className={`${montserrat.variable} ${inter.variable} h-full`}
     >
-      <body className="min-h-full bg-[#0d0d0f] text-[#f0ede8]">
+      <body
+        className="min-h-full"
+        style={{ backgroundColor: "var(--void)", color: "var(--bone)" }}
+      >
         {children}
         <Analytics />
       </body>

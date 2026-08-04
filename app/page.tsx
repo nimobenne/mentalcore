@@ -22,13 +22,11 @@ export const metadata: Metadata = {
 
 const PAGE_CSS = `
 :root{
-  --void:#0d0d0f;
   --surface:#111113;
   --line:#1e1e22;
   --line-lit:#2a2a30;
   --ember:#C4813A;
   --ember-hi:#d4904a;
-  --bone:#f0ede8;
   --ash:#b8b4ae;
   --dim:#4a4a55;
 
@@ -324,7 +322,6 @@ const BODY_HTML = `
   <!-- HERO -->
   <header class="hero">
     <div class="wrap">
-      <span class="eyebrow">MentalCore</span>
       <h1>You're not depressed.<br>You've just gone <span class="quiet">quiet</span>.</h1>
       <p class="terms">
         <span>7 days</span>
@@ -355,7 +352,6 @@ const BODY_HTML = `
   <!-- WHAT IT IS -->
   <section>
     <div class="wrap">
-      <span class="eyebrow">What it is</span>
       <div class="rule"></div>
       <h2>Seven days.<br>One email each morning.</h2>
       <div class="copy">
@@ -391,7 +387,6 @@ const BODY_HTML = `
   <!-- WHO BUILT THIS -->
   <section>
     <div class="wrap">
-      <span class="eyebrow">Who made this</span>
       <div class="rule"></div>
       <h2>My name is Sam.</h2>
       <div class="copy">
@@ -405,7 +400,6 @@ const BODY_HTML = `
   <!-- OBJECTION -->
   <section>
     <div class="wrap">
-      <span class="eyebrow">You're skeptical</span>
       <div class="rule"></div>
       <h2>Good. You should be.</h2>
       <div class="panel">
@@ -447,10 +441,9 @@ const BODY_HTML = `
   <!-- CLOSE -->
   <section>
     <div class="wrap">
-      <span class="eyebrow muted">One therapy session runs $150 to $250</span>
       <span class="anchor-price" data-price>$37</span>
       <div class="copy">
-        <p>I'm not saying this is therapy. I'm saying it's <span data-price>$37</span>, it lands tomorrow morning, there's no waitlist, and the only thing it asks of you is fifteen minutes and something honest.</p>
+        <p>A single therapy session often runs $150 to $250. I'm not saying this is therapy. I'm saying it's <span data-price>$37</span>, it lands tomorrow morning, there's no waitlist, and the only thing it asks of you is fifteen minutes and something honest.</p>
       </div>
       <div class="cta-block" style="margin-top:34px">
         <a class="btn" href="#" data-buy>Get The Reactivation</a>
@@ -462,7 +455,6 @@ const BODY_HTML = `
   <!-- NOT READY — capture path -->
   <section class="notready">
     <div class="wrap">
-      <span class="eyebrow muted">Not sure yet</span>
       <div class="rule"></div>
       <h2>Then don't buy anything.</h2>
       <div class="copy">
