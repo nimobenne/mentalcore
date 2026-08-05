@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { track } from "@vercel/analytics/react";
 import { subscribe } from "../actions";
 
@@ -20,23 +20,26 @@ const QUESTIONS = [
   "There's a version of you that existed before — younger, less guarded, more certain about what he wanted. You're not sure what happened to him, but you'd recognize him if you saw him.",
 ];
 
-const PATTERNS: Record<PatternKey, { label: string; headline: string; body: string; cta: string }> = {
+const PATTERNS: Record<PatternKey, { label: string; headline: string; body: string; permission: string; cta: string }> = {
   shutdown: {
     label: "The Shutdown",
     headline: "You've gone quiet after something changed.",
     body: "Something happened. A loss, a failure, a version of yourself that didn't land the way it was supposed to. You kept going because stopping wasn't an option. But the signal got cut somewhere in the aftermath, and it hasn't fully come back. The performing version of you has been covering for the real one for a while now.",
+    permission: "That's not a diagnosis. It's what happens when you keep going long enough that stopping stops feeling possible.",
     cta: "The 5-day series starts exactly here. What happened, what it cost, and where to begin moving again. Day 1 lands in minutes.",
   },
   slowfade: {
     label: "The Slow Fade",
     headline: "You've been quiet for a long time.",
     body: "There was no single event. It happened gradually, maybe over years, maybe over most of your life. You learned early that needing things was either too much or not safe. So you adjusted. You got good at not needing. The quiet has been there so long it feels like personality. It isn't.",
+    permission: "Nothing is wrong with you. You learned early that needing less was safer, and that's a habit, not who you are.",
     cta: "The 5-day series was built for this kind of quiet. The kind that started before you had words for it. Day 1 is waiting.",
   },
   highperformer: {
     label: "The High Performer's Emptiness",
     headline: "You've gone quiet behind what's working.",
     body: "By most measures, things are working. Career, competence, the way people see you. But the achievement doesn't land the way it was supposed to. The completion feels like nothing. The man who built all of this isn't sure he was supposed to feel this empty. The quiet lives behind the noise.",
+    permission: "That doesn't make you broken. It makes you someone who's been carrying more than anyone else can see.",
     cta: "The 5-day series starts with the gap between what you've built and what it was supposed to feel like. Day 1 lands now.",
   },
 };
@@ -49,9 +52,13 @@ function score(a: Answer): number {
 
 function getPattern(answers: Answer[]): PatternKey {
   const [a1, a2, a3, a4, a5] = answers;
-  const shutdown = score(a1) + score(a3);
-  const slowfade = score(a4) + score(a5);
-  const highperformer = score(a2) + score(a3);
+  // Averaged, not summed: a3 feeds both shutdown and highperformer (shared
+  // "functioning but not landing" theme), a1 feeds both shutdown and slowfade
+  // (shared masking theme). Averaging keeps all three patterns on the same
+  // 0-2 scale so no pattern is structurally starved relative to the others.
+  const shutdown = (score(a1) + score(a3)) / 2;
+  const highperformer = (score(a2) + score(a3)) / 2;
+  const slowfade = (score(a1) + score(a4) + score(a5)) / 3;
   if (slowfade >= shutdown && slowfade >= highperformer) return "slowfade";
   if (highperformer >= shutdown) return "highperformer";
   return "shutdown";
@@ -71,6 +78,13 @@ export default function Home() {
   const [pattern, setPattern] = useState<PatternKey | null>(null);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [alreadySubscribed, setAlreadySubscribed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("mc_subscribed") === "1") {
+      setAlreadySubscribed(true);
+    }
+  }, []);
 
   function handleAnswer(answer: Answer) {
     const next = [...answers, answer];
@@ -91,6 +105,7 @@ export default function Home() {
     setStatus("loading");
     try {
       await subscribe(email, pattern ?? undefined);
+      if (typeof window !== "undefined") localStorage.setItem("mc_subscribed", "1");
       setStep("done");
       track("email_submitted", { pattern: pattern ?? "unknown" });
     } catch {
@@ -106,7 +121,55 @@ export default function Home() {
       <div className="w-full max-w-[560px]">
 
         {/* ── INTRO ── */}
-        {step === "intro" && (
+        {step === "intro" && alreadySubscribed && (
+          <>
+            <p style={mono} className="font-bold text-[10px] tracking-[0.3em] uppercase text-[#C4813A] mb-6">
+              Welcome back
+            </p>
+
+            <h1
+              style={{ ...mono, fontSize: "clamp(28px, 5vw, 42px)" }}
+              className="font-extrabold leading-[1.1] uppercase text-[#f0ede8] mb-7"
+            >
+              Looks like you've already done this.
+            </h1>
+
+            <div className="w-10 h-0.5 bg-[#C4813A] mb-7" />
+
+            <p className="text-base font-light leading-[1.75] text-[#b8b4ae] mb-8">
+              Check your inbox for the 5-day series. If you're ready for the next step, The Reactivation is a 7-day, $37 program built to go further than the free series does.
+            </p>
+
+            <a
+              href="/"
+              style={mono}
+              className="inline-block bg-[#C4813A] text-[#0d0d0f] font-extrabold text-[12px] tracking-[0.15em] uppercase px-8 py-4 hover:bg-[#d4904a] transition-colors"
+            >
+              See The Reactivation
+            </a>
+
+            <p className="text-xs text-[#4a4a55] mt-6 leading-[1.5]">
+              Want to retake the quiz anyway?{" "}
+              <button
+                onClick={() => {
+                  setStep("quiz");
+                  track("quiz_started");
+                }}
+                className="underline hover:text-[#b8b4ae]"
+              >
+                Start over
+              </button>
+            </p>
+
+            <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>
+              <p style={mono} className="font-extrabold text-[11px] tracking-[0.3em] uppercase text-[#2a2a30]">
+                MentalCore
+              </p>
+            </div>
+          </>
+        )}
+
+        {step === "intro" && !alreadySubscribed && (
           <>
             <p style={mono} className="font-bold text-[10px] tracking-[0.3em] uppercase text-[#C4813A] mb-6">
               Free. 2 minutes. No email required to start.
@@ -134,7 +197,7 @@ export default function Home() {
               style={mono}
               className="mt-6 bg-[#C4813A] text-[#0d0d0f] font-extrabold text-[12px] tracking-[0.15em] uppercase px-8 py-4 hover:bg-[#d4904a] transition-colors"
             >
-              Start the Audit
+              Find My Pattern
             </button>
 
             <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>
@@ -216,8 +279,12 @@ export default function Home() {
 
             <div className="w-10 h-0.5 bg-[#C4813A] mb-6" />
 
-            <p className="text-[15px] font-light leading-[1.8] text-[#b8b4ae] mb-10">
+            <p className="text-[15px] font-light leading-[1.8] text-[#b8b4ae] mb-6">
               {p.body}
+            </p>
+
+            <p className="text-[15px] font-light leading-[1.8] text-[#f0ede8] mb-10">
+              {p.permission}
             </p>
 
             <button
@@ -225,7 +292,7 @@ export default function Home() {
               style={mono}
               className="w-full sm:w-auto bg-[#C4813A] text-[#0d0d0f] font-extrabold text-[12px] tracking-[0.15em] uppercase px-8 py-4 hover:bg-[#d4904a] transition-colors"
             >
-              See What Comes Next
+              Get Day 1 by Email
             </button>
 
             <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>
@@ -281,6 +348,10 @@ export default function Home() {
             </div>
 
             <form onSubmit={handleSubscribe}>
+              <p className="text-xs text-[#4a4a55] mb-4 leading-[1.5]">
+                Five emails, nothing more. Free. Nobody can see what lands in your inbox. From Sam, who built MentalCore.{" "}
+                <a href="/privacy" className="underline hover:text-[#b8b4ae]">Privacy</a>
+              </p>
               <label htmlFor="email" style={mono} className="block font-bold text-[10px] tracking-[0.25em] uppercase text-[#8a8899] mb-2.5">
                 Your email
               </label>
@@ -312,9 +383,6 @@ export default function Home() {
               {status === "error" && (
                 <p className="text-xs text-red-400 mt-3">Something went wrong. Try again.</p>
               )}
-              <p className="text-xs text-[#4a4a55] mt-3 leading-[1.5]">
-                Free. Nobody can see what lands in your inbox.
-              </p>
             </form>
 
             <div className="mt-12 pt-6" style={{ borderTop: "1px solid #1e1e22" }}>

@@ -329,8 +329,8 @@ const BODY_HTML = `
         <span data-price>$37</span>
       </p>
       <div class="cta-block">
-        <a class="btn" href="#" data-buy>Get The Reactivation</a>
-        <p class="cta-sub">One time. Instant access. The first email lands tomorrow morning, and there's something you can do tonight.</p>
+        <a class="btn" href="https://mentalcore.gumroad.com/l/reactivation" data-buy>Get The Reactivation</a>
+        <p class="cta-sub">One time. Instant access. The first email lands tomorrow morning, and there's something you can do tonight.<br>Not ready yet? <a href="/start" class="link-cta" style="font-size:12px;padding-bottom:2px;margin-top:0">Take the free quiz first</a></p>
       </div>
     </div>
   </header>
@@ -419,6 +419,10 @@ const BODY_HTML = `
 
       <div class="faq">
         <div class="faq-item">
+          <h3>What if I miss a day?</h3>
+          <p>You pick it up the next morning. Nothing resets and nothing is lost. The emails don't chase you and the days don't expire.</p>
+        </div>
+        <div class="faq-item">
           <h3>Is this therapy?</h3>
           <p>No, and it doesn't replace it. It's a structure for seven days. If something surfaces during the week that's heavier than a week can hold, that's worth taking to a real therapist, and it doesn't cancel out what the seven days did.</p>
         </div>
@@ -427,12 +431,8 @@ const BODY_HTML = `
           <p>No. There's no group, no call, no forum, no accountability partner. It's you, an email each morning, and fifteen minutes. Nobody sees what you write.</p>
         </div>
         <div class="faq-item">
-          <h3>What if I miss a day?</h3>
-          <p>You pick it up the next morning. Nothing resets and nothing is lost. The emails don't chase you and the days don't expire.</p>
-        </div>
-        <div class="faq-item">
           <h3>How long does it actually take?</h3>
-          <p>Fifteen minutes, most days less. Each morning gives you one idea, one question to sit on, and one thing to actually do. It's built for a man with a full schedule and no spare energy.</p>
+          <p>Fifteen minutes, most days less. Each morning gives you one idea, one question to think about, and one thing to actually do. It's built for a man with a full schedule and no spare energy.</p>
         </div>
       </div>
     </div>
@@ -446,7 +446,7 @@ const BODY_HTML = `
         <p>A single therapy session often runs $150 to $250. I'm not saying this is therapy. I'm saying it's <span data-price>$37</span>, it lands tomorrow morning, there's no waitlist, and the only thing it asks of you is fifteen minutes and something honest.</p>
       </div>
       <div class="cta-block" style="margin-top:34px">
-        <a class="btn" href="#" data-buy>Get The Reactivation</a>
+        <a class="btn" href="https://mentalcore.gumroad.com/l/reactivation" data-buy>Get The Reactivation</a>
         <p class="cta-sub">One time. Instant access. You can start tonight.<br>Start it, feel nothing, get your money back. That's the deal, and I mean it.</p>
       </div>
     </div>
@@ -458,10 +458,10 @@ const BODY_HTML = `
       <div class="rule"></div>
       <h2>Then don't buy anything.</h2>
       <div class="copy">
-        <p>There's a free guide called <em>Why You've Gone Quiet</em>. It walks you through the three patterns most men are in without knowing it, and five questions that tell you which one is yours. Ten minutes, straight to your inbox, no pitch until you decide you want one.</p>
-        <p>Read that first. If it describes your life accurately, you'll know what to do next.</p>
+        <p>There's a free two-minute quiz called <em>Why You've Gone Quiet</em>. Five questions, no email required to start. At the end you'll know which of three patterns is yours, and a free 5-day email series built for that exact pattern lands in your inbox. No pitch until you decide you want one.</p>
+        <p>Take that first. If it describes your life accurately, you'll know what to do next.</p>
       </div>
-      <a class="link-cta" href="/start">Get the free guide</a>
+      <a class="link-cta" href="/start">Take the free quiz</a>
     </div>
   </section>
 
@@ -471,14 +471,14 @@ const BODY_HTML = `
   <div class="wrap">
     <div class="footer-row">
       <span class="wordmark">MentalCore</span>
-      <span><a href="/start">Free guide</a> · <a href="mailto:hello@mentalcore.co">Questions? Email me</a></span>
+      <span><a href="/start">Free guide</a> · <a href="mailto:hello@mentalcore.co">Questions? Email me</a> · <a href="/privacy">Privacy</a></span>
     </div>
   </div>
 </footer>
 
 <div class="bar" aria-hidden="true">
   <span class="bar-label">The Reactivation<br><span data-price>$37</span> · 7 days</span>
-  <a class="btn" href="#" data-buy tabindex="-1">Get it</a>
+  <a class="btn" href="https://mentalcore.gumroad.com/l/reactivation" data-buy tabindex="-1">Get Access</a>
 </div>
 `;
 
@@ -495,7 +495,7 @@ const BEHAVIOR_JS = `
   var src = qs.get('src') || qs.get('utm_source') || 'direct';
 
   root.querySelectorAll('[data-buy]').forEach(function(a){
-    if (!base) return;
+    if (!base) { console.error('MentalCore config missing checkoutUrl, buy buttons falling back to unparameterized href'); return; }
     a.href = base + (base.indexOf('?') > -1 ? '&' : '?') + 'src=' + encodeURIComponent(src);
     a.rel = 'noopener';
     a.addEventListener('click', function(){
