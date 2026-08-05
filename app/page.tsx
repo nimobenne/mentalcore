@@ -216,9 +216,6 @@ const PAGE_CSS = `
   .mc-sales .day-t{color:var(--bone)}
 }
 
-.mc-sales .panel{background:var(--surface);border:1px solid var(--line);padding:32px 30px}
-.mc-sales .panel p{color:var(--ash);max-width:none}
-
 .mc-sales .deal{border:1px solid var(--line-lit);padding:38px 32px 34px;position:relative;margin-top:12px}
 .mc-sales .deal-label{
   position:absolute;
@@ -255,8 +252,6 @@ const PAGE_CSS = `
   margin:6px 0 20px;
 }
 
-.mc-sales .notready{background:var(--surface)}
-.mc-sales .notready h2{margin-bottom:20px}
 .mc-sales .link-cta{
   display:inline-block;
   font-family:var(--font-montserrat),system-ui,sans-serif;
@@ -318,7 +313,6 @@ const PAGE_CSS = `
   .mc-sales .day{grid-template-columns:30px 1fr;gap:0 14px}
   .mc-sales .deal{padding:34px 24px 30px}
   .mc-sales .deal-label{left:20px}
-  .mc-sales .panel{padding:26px 22px}
 }
 `;
 
@@ -405,23 +399,12 @@ const BODY_HTML = `
     </div>
   </section>
 
-  <!-- OBJECTION -->
-  <section>
-    <div class="wrap">
-      <div class="rule"></div>
-      <h2>Good. You should be.</h2>
-      <div class="panel">
-        <p>There's a whole industry pointed at men like us, and it splits into two flavors. The soft stuff, all feelings wheels and breathe-into-it, that makes your skin crawl. And the hard stuff, cold showers and grind and dominate your morning, that's just the same emptiness wearing a weighted vest. You learned to scroll past both. So did I.</p>
-      </div>
-    </div>
-  </section>
-
   <!-- THE DEAL -->
   <section>
     <div class="wrap">
       <div class="deal">
         <span class="deal-label">The deal</span>
-        <p>Start it. If at any point it isn't doing anything for you, email me and I'll send your money back. You don't have to finish all seven days first, and you don't have to explain why.</p>
+        <p>You're skeptical of anything that sounds like a fix. You should be. There's a whole industry pointed at men like us, the soft stuff and the hard stuff both, and you learned to scroll past it. So here's the deal, plain as I can say it. Start it. If at any point it isn't doing anything for you, email me and I'll send your money back. You don't have to finish all seven days first, and you don't have to explain why.</p>
         <p>I'm not worried about that clause. I wrote it on purpose.</p>
       </div>
 
@@ -483,18 +466,6 @@ const BODY_HTML = `
     </div>
   </section>
 
-  <!-- NOT READY — capture path -->
-  <section class="notready">
-    <div class="wrap">
-      <div class="rule"></div>
-      <h2>Then don't buy anything.</h2>
-      <div class="copy">
-        <p>There's a free two-minute quiz called <em>Why You've Gone Quiet</em>. Five questions, no email required to start. At the end you'll know which of three patterns is yours, and a free 5-day email series built for that exact pattern lands in your inbox. No pitch until you decide you want one.</p>
-        <p>Take that first. If it describes your life accurately, you'll know what to do next.</p>
-      </div>
-      <a class="link-cta" href="/start">Take the free quiz</a>
-    </div>
-  </section>
 
 </main>
 
