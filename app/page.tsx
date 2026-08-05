@@ -332,7 +332,7 @@ const BODY_HTML = `
       <p class="terms">
         <span>7 days</span>
         <span>15 min a day</span>
-        <span data-price>$37</span>
+        <span data-price>$19</span>
       </p>
       <div class="cta-block">
         <a class="btn" href="https://mentalcore.gumroad.com/l/reactivation" data-buy>Get The Reactivation</a>
@@ -472,9 +472,9 @@ const BODY_HTML = `
   <!-- CLOSE -->
   <section>
     <div class="wrap">
-      <span class="anchor-price" data-price>$37</span>
+      <span class="anchor-price" data-price>$19</span>
       <div class="copy">
-        <p>A single therapy session often runs $150 to $250. I'm not saying this is therapy. I'm saying it's <span data-price>$37</span>, it lands tomorrow morning, there's no waitlist, and the only thing it asks of you is fifteen minutes and something honest.</p>
+        <p>A single therapy session often runs $150 to $250. I'm not saying this is therapy. I'm saying it's <span data-price>$19</span>, it lands tomorrow morning, there's no waitlist, and the only thing it asks of you is fifteen minutes and something honest.</p>
       </div>
       <div class="cta-block" style="margin-top:34px">
         <a class="btn" href="https://mentalcore.gumroad.com/l/reactivation" data-buy>Get The Reactivation</a>
@@ -508,7 +508,7 @@ const BODY_HTML = `
 </footer>
 
 <div class="bar" aria-hidden="true">
-  <span class="bar-label">The Reactivation<br><span data-price>$37</span> · 7 days</span>
+  <span class="bar-label">The Reactivation<br><span data-price>$19</span> · 7 days</span>
   <a class="btn" href="https://mentalcore.gumroad.com/l/reactivation" data-buy tabindex="-1">Get Access</a>
 </div>
 `;
@@ -519,7 +519,7 @@ const BEHAVIOR_JS = `
   var root = document.querySelector('.mc-sales');
   if (!root) return;
 
-  var cfg = window.MENTALCORE || { checkoutUrl: '', price: '$37' };
+  var cfg = window.MENTALCORE || { checkoutUrl: '', price: '$19' };
 
   var base = cfg.checkoutUrl || '';
   var qs = new URLSearchParams(location.search);
