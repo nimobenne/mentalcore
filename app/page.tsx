@@ -330,7 +330,8 @@ const BODY_HTML = `
       </p>
       <div class="cta-block">
         <a class="btn" href="https://mentalcore.gumroad.com/l/reactivation" data-buy>Get The Reactivation</a>
-        <p class="cta-sub">One time. Instant access. The first email lands tomorrow morning, and there's something you can do tonight.<br>Not ready yet? <a href="/start" class="link-cta" style="font-size:12px;padding-bottom:2px;margin-top:0">Take the free quiz first</a></p>
+        <p class="cta-sub">One time. Instant access. The first email lands tomorrow morning, and there's something you can do tonight.</p>
+        <p class="cta-sub" style="margin-top:14px">Not ready yet? <a href="/start" class="link-cta" style="margin-top:0;margin-left:4px">Take the free quiz first</a></p>
       </div>
     </div>
   </header>
