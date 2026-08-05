@@ -397,8 +397,9 @@ const BODY_HTML = `
       <div class="rule"></div>
       <h2>My name is Sam.</h2>
       <div class="copy">
-        <p>I run MentalCore. If you got here from a clip, that's mine. I started posting because I kept finding moments where men said the thing out loud that I had spent years not saying, and it turned out a lot of us were sitting in the same silence.</p>
-        <p>I'm not a therapist and I'm not going to pretend to be one. I built The Reactivation out of what actually moved the needle for me when I was functioning fine and feeling almost nothing, and I wrote it as the thing I wanted somebody to hand me back then.</p>
+        <p>I used to be a professional athlete. I gave up on that early, not because I wasn't good enough, but because I couldn't handle the mental toll and didn't have a real way to deal with it. I regret that to this day.</p>
+        <p>I started MentalCore because I don't want other men walking away from something they care about for the same reason I did. Not because they aren't capable. Because nobody handed them a way to deal with what's actually going on in their head before it cost them something they can't get back.</p>
+        <p>I'm not a therapist and I'm not going to pretend to be one. I built The Reactivation out of what would have actually moved the needle for me back then, and I wrote it as the thing I wish somebody had handed me before I quit.</p>
         <p>That's the whole credential. If that's not enough for you, don't buy it. Read the free guide instead and see whether I'm describing your life accurately before you spend anything.</p>
       </div>
     </div>
