@@ -239,6 +239,12 @@ const PAGE_CSS = `
 .mc-sales .faq-item{border-bottom:1px solid var(--line);padding:26px 0}
 .mc-sales .faq-item p{color:var(--ash);font-size:16px;max-width:62ch;margin:0}
 
+.mc-sales .testimonial{border:1px solid var(--line-lit);padding:30px 28px;margin-top:16px}
+.mc-sales .testimonial:first-child{margin-top:0}
+.mc-sales .testimonial p{color:var(--bone);font-size:16px;line-height:1.7;max-width:none;margin-bottom:16px}
+.mc-sales .testimonial-name{font-weight:800;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ember)}
+.mc-sales .testimonial-name span{color:var(--dim);font-weight:700;text-transform:none;letter-spacing:normal;font-family:var(--font-inter),system-ui,sans-serif}
+
 .mc-sales .anchor-price{
   font-weight:800;
   font-size:clamp(46px,10vw,78px);
@@ -435,6 +441,29 @@ const BODY_HTML = `
           <h3>How long does it actually take?</h3>
           <p>Fifteen minutes, most days less. Each morning gives you one idea, one question to think about, and one thing to actually do. It's built for a man with a full schedule and no spare energy.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section>
+    <div class="wrap">
+      <div class="rule"></div>
+      <h2>Men who've done this.</h2>
+
+      <div class="testimonial">
+        <p>"I never believed in working on my mental health, but after I finished university I felt lost, like I wasn't the man I was supposed to be. The Reactivation helped me gain direction and focus on the goals I'm chasing today."</p>
+        <p class="testimonial-name">Braden, 24 <span>— started with the free guide, then The Reactivation</span></p>
+      </div>
+
+      <div class="testimonial">
+        <p>"I've always struggled to find the right path for me and had trouble accepting who I am and what my purpose was. I stumbled onto MentalCore and resonated with the message, so I decided to try The Reactivation. I couldn't recommend it more to other men who need guidance without the fear of having to ask for help."</p>
+        <p class="testimonial-name">Ryan, 27 <span>— The Reactivation</span></p>
+      </div>
+
+      <div class="testimonial">
+        <p>"Most men think they have it figured out by my age, but I noticed nobody ever feels like they've made it until they can live with their own thoughts and ideas. The Reactivation helped me navigate the thoughts I've been avoiding and forced me to become a better man. Best twenty dollars I've spent on myself in a long time. Highly recommend."</p>
+        <p class="testimonial-name">Noah, 37 <span>— The Reactivation</span></p>
       </div>
     </div>
   </section>
