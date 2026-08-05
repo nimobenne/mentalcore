@@ -342,8 +342,7 @@ const BODY_HTML = `
       <p class="lede">There's a kind of not-okay nobody warns you about.</p>
       <p>It isn't falling apart. Falling apart would almost be easier, because at least everyone would see it. This is quieter than that. You still get up. You still do the job, answer the texts, show up where you said you'd be. You'd score fine on any questionnaire a doctor handed you.</p>
       <p>But you know, in the way you can only know something at one in the morning when it's just you and the ceiling, that you're not really in your own life anymore. You're next to it. Doing the right things. Saying the right things. Watching it all happen to a guy who looks like you.</p>
-      <p>That's not weakness. It isn't a diagnosis either.</p>
-      <p>That's what happens when a man performs okay for long enough that he forgets what not performing even felt like. The performance gets so good he disappears inside it. And one day he realizes he can't remember the last time something actually reached him.</p>
+      <p>That's not weakness. It isn't a diagnosis. It's what happens when a man performs okay for long enough that he forgets what not performing even felt like, when the performance gets so good he disappears inside it, until one day he realizes he can't remember the last time something actually reached him.</p>
       <div class="pull">
         <p>I know that man because I was him. I built something for him.</p>
       </div>
@@ -376,10 +375,6 @@ const BODY_HTML = `
       </ol>
 
       <div class="copy" style="margin-top:46px">
-        <p>Days one and two are physical. Something that makes you feel something. No explaining it, no figuring it out, no talking about your childhood. Just feeling, on purpose, maybe for the first time in a while.</p>
-        <p>Days three through five are about who you actually are. Not the version you run for other people. The one underneath that, the one you've half lost track of.</p>
-        <p>Days six and seven are direction. Not goals. Not a five-year plan. One honest commitment small enough to actually keep.</p>
-        <p>Every day comes with a page to write on, and by day seven you're reading back a week of your own handwriting instead of trying to remember what you thought on Tuesday.</p>
         <p><strong>I'm not promising transformation. I'm not selling you a new man. I'm selling you seven days of giving a damn about the one already here.</strong></p>
       </div>
     </div>
@@ -391,10 +386,8 @@ const BODY_HTML = `
       <div class="rule"></div>
       <h2>My name is Sam.</h2>
       <div class="copy">
-        <p>I used to be a professional athlete. I gave up on that early, not because I wasn't good enough, but because I couldn't handle the mental toll and didn't have a real way to deal with it. I regret that to this day.</p>
-        <p>I started MentalCore because I don't want other men walking away from something they care about for the same reason I did. Not because they aren't capable. Because nobody handed them a way to deal with what's actually going on in their head before it cost them something they can't get back.</p>
-        <p>I'm not a therapist and I'm not going to pretend to be one. I built The Reactivation out of what would have actually moved the needle for me back then, and I wrote it as the thing I wish somebody had handed me before I quit.</p>
-        <p>That's the whole credential. If that's not enough for you, don't buy it. Read the free guide instead and see whether I'm describing your life accurately before you spend anything.</p>
+        <p>I used to be a professional athlete. I gave up on that early, not because I wasn't good enough, but because I couldn't handle the mental toll and didn't have a real way to deal with it. I started MentalCore so other men don't walk away from something they care about for the same reason I did, because nobody handed them a way to deal with what's actually going on in their head before it cost them something they can't get back.</p>
+        <p>I'm not a therapist and I'm not going to pretend to be one. I built The Reactivation out of what would have actually moved the needle for me back then. That's the whole credential. If that's not enough for you, don't buy it. Read the free guide instead and see whether I'm describing your life accurately before you spend anything.</p>
       </div>
     </div>
   </section>
@@ -420,10 +413,6 @@ const BODY_HTML = `
         <div class="faq-item">
           <h3>Do I have to talk to anybody?</h3>
           <p>No. There's no group, no call, no forum, no accountability partner. It's you, an email each morning, and fifteen minutes. Nobody sees what you write.</p>
-        </div>
-        <div class="faq-item">
-          <h3>How long does it actually take?</h3>
-          <p>Fifteen minutes, most days less. Each morning gives you one idea, one question to think about, and one thing to actually do. It's built for a man with a full schedule and no spare energy.</p>
         </div>
       </div>
     </div>
